@@ -1,0 +1,109 @@
+# This will guide you for installation steps.
+
+#########################################################################
+****************** Kubernetes Installation Steps  ***********************
+#########################################################################
+
+# On both MASTER SERVER and NODE SERVERS:
+-----------------------------------------
+
+# Be a root user. Install Docker and start Docker service. Also, enable the docker service so that the docker service starts on system restarts.
+===================================================================================================================================================
+
+sudo su -
+yum install docker -y 
+systemctl enable docker && systemctl start docker
+
+# Create proper yum repo files so that we can use yum commands to install the components of Kubernetes (just execute the below command, it will create # kubernetes repo for you).
+==============================================================================================================================================================================
+
+cat <<EOF > /etc/yum.repos.d/kubernetes.repo
+[kubernetes]
+
+name=Kubernetes
+
+baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+
+enabled=1
+
+gpgcheck=1
+
+repo_gpgcheck=0
+
+gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+
+exclude=kube*
+
+EOF
+
+
+
+# sysctl command is used to modify kernel parameters at runtime. Kubernetes needs to have access to kernel’s IP6 table and so we need to do some more # modifications. This includes disabling secure Linux.
+=========================================================================================================================================================================
+
+cat <<EOF >  /etc/sysctl.d/k8s.conf
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+EOF
+
+sysctl --system
+setenforce 0
+
+# Install kubelet, kubeadm and kubectl; start kubelet daemon
+============================================================
+
+yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
+systemctl enable kubelet && systemctl start kubelet
+
+
+# Only on the MASTER SERVER:
+============================
+
+# Initialize the API with the server IP using kubeadm command
+=============================================================
+
+Master IP : 172.31.17.81       // In your case this server IP may be differ, please use kubernetes master server IP here.
+Pod CIDR  : 192.168.0.0/16     // This should be remains same, do not change anything, and real time it may be differ.
+
+kubeadm init --apiserver-advertise-address=172.31.17.81 --pod-network-cidr=192.168.0.0/16
+
+
+# To make sure kubectl work for your non-root user(my case, I'm using my own user directory), run the below commands, which are also part of the kubeadm output:
+================================================================================================================================================================
+
+mkdir -p /home/siva/.kube
+sudo cp -i /etc/kubernetes/admin.conf /home/siva/.kube/config        // you need to copy admin.conf content to your home dir to allow non user to run the commands 
+sudo chown siva:siva /home/siva/.kube/config                         // change the ownership into your user name
+
+
+Alternatively, if you are the root user, you can run: alway RECOMMANDED to run using NON ROOT user
+==================================================================================================
+
+  export KUBECONFIG=/etc/kubernetes/admin.conf
+
+# Install Calico network for your master to fetch the nodes information:
+========================================================================
+# 1. First install the operator on your cluster
+============================================
+
+kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.24.5/manifests/tigera-operator.yaml
+or 
+
+wget https://raw.githubusercontent.com/projectcalico/calico/v3.24.5/manifests/tigera-operator.yaml    // This will get downoaded to your local.
+
+kubectl create -f tigera-operator.yaml
+
+# 2. Download the custom resources necessary to configure Calico
+================================================================
+
+curl https://raw.githubusercontent.com/projectcalico/calico/v3.24.5/manifests/custom-resources.yaml -O
+
+
+# 3. Create the manifest in order to install Calico.
+====================================================
+
+kubectl create -f custom-resources.yaml
+
+# After the above command running you will be getting command called kubeadm join 172.31.17.81:6443 --token and so --descovery, copy the full command and excute it on NODE servers
+====================================================================================================================================================================================
+
