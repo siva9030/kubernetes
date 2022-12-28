@@ -1,11 +1,12 @@
-# This will guide you for installation steps.
+# This will guide you for K8s installation steps.
 
 #########################################################################
 ****************** Kubernetes Installation Steps  ***********************
 #########################################################################
 
-# On both master and Nodes
-------------------------
+# On both MASTER SERVER and NODE SERVERS:
+-----------------------------------------
+
 # Be a root user. Install Docker and start Docker service. Also, enable the docker service so that the docker service starts on system restarts.
 ===================================================================================================================================================
 
@@ -55,14 +56,17 @@ yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
 systemctl enable kubelet && systemctl start kubelet
 
 
-# Only on the Master Node:
-========================
+# Only on the MASTER SERVER:
+============================
 
-# Initialize the API with the server IP
-======================================
+# Initialize the API with the server IP using kubeadm command
+=============================================================
 
 Master IP : 172.31.17.81       // In your case this server IP may be differ, please use kubernetes master server IP here.
 Pod CIDR  : 192.168.0.0/16     // This should be remains same, do not change anything, and real time it may be differ.
+
+kubeadm init --apiserver-advertise-address=172.31.17.81 --pod-network-cidr=192.168.0.0/16
+
 
 # To make sure kubectl work for your non-root user(my case, I'm using my own user directory), run the below commands, which are also part of the kubeadm output:
 ================================================================================================================================================================
@@ -70,6 +74,12 @@ Pod CIDR  : 192.168.0.0/16     // This should be remains same, do not change any
 mkdir -p /home/siva/.kube
 sudo cp -i /etc/kubernetes/admin.conf /home/siva/.kube/config        // you need to copy admin.conf content to your home dir to allow non user to run the commands 
 sudo chown siva:siva /home/siva/.kube/config                         // change the ownership into your user name
+
+
+Alternatively, if you are the root user, you can run: alway RECOMMANDED to run using NON ROOT user
+==================================================================================================
+
+  export KUBECONFIG=/etc/kubernetes/admin.conf
 
 # Install Calico network for your master to fetch the nodes information:
 ========================================================================
