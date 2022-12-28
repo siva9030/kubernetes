@@ -4,7 +4,7 @@
 #This will guide you for installation steps.
 
 #########################################################################
-####################  Kubernetes Installation Steps  ####################
+####################  Kubernetes Installation Steps  ##############################
 #########################################################################
 
 #On both master and Nodes
