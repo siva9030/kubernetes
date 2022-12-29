@@ -1,0 +1,20 @@
+Deployment
+ReplicaSet
+DeamonSet
+ReplicationController
+StatefulSet
+NameSpace
+Jobs
+Services
+
+================
+K8s components
+================
+Kubelet
+kubeconfig
+kubeproxy
+etcd
+scheduler 
+API server
+Controller Manager
+
