@@ -107,3 +107,6 @@ kubectl create -f custom-resources.yaml
 # After the above command running you will be getting command called kubeadm join 172.31.17.81:6443 --token and so --descovery, copy the full command and excute it on NODE servers
 ====================================================================================================================================================================================
 
+kubeadm join 172.31.17.81:6443 --token c8hqtp.ss931tdzmtwyvizj \
+        --discovery-token-ca-cert-hash sha256:59312ad8410dba15d7be8be4f50420b17587b02874949197e5417e87d53bb276
+
