@@ -8,7 +8,7 @@ Jobs
 Services
 
 ================
-K8s components
+K8s components.
 ================
 Kubelet
 kubeconfig
