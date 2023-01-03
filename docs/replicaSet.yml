@@ -1,4 +1,4 @@
-# This file is to create a ReplicaSet
+# This file is to create a ReplicaSet.
 
 apiVesrion: apps/v1
 kind: ReplicaSet   
