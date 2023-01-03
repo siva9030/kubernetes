@@ -1,0 +1,23 @@
+# This file is to create a ReplicaSet
+
+apiVesrion: apps/v1
+kind: ReplicaSet   
+metadata:
+  name:  frontend
+  namespace: fisdev
+  labels: 
+    app: guestbook
+    tier: frontend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        tier: frontend
+    spec:
+      containers:
+      - name: php-redis
+        image: gcr.io/google_samples/gb-frontend:v3

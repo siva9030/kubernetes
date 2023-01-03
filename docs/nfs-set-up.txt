@@ -1,0 +1,19 @@
+# Step 1. Setup an NFS server (sample for CentOS)
+# First thing you will need, of course, is to have an NFS server. This can be easily achieved with some easy steps:
+
+# Install nfs package: yum install -y nfs-utils
+# Enable and start nfs service and rpcbind:
+systemctl enable rpcbind
+systemctl enable nfs-server
+systemctl start rpcbind
+systemctl start nfs-server
+# Create the directory that will be shared by NFS, and change the permissions:
+mkdir /var/nfsshare
+chmod -R 755 /nfsshare-client-provisioner
+chown nfsnobody:nfsnobody /nfsshare-client-provisioner
+
+# Share the NFS directory over the network, creating the /etc/exports file:
+vi /etc/exports
+/var/nfsshare * (rw,sync,no_root_squash,no_all_squash)
+# Restart the nfs service to apply the content:
+systemctl restart nfs-server
