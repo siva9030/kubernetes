@@ -17,3 +17,5 @@ vi /etc/exports
 /var/nfsshare * (rw,sync,no_root_squash,no_all_squash)
 # Restart the nfs service to apply the content:
 systemctl restart nfs-server
+
+The above commands will work for set up for 
