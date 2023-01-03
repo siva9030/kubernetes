@@ -1,4 +1,4 @@
-## This file is used to provision for NFS provision 
+## This file is used to provision for NFS provision.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
