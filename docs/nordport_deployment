@@ -1,4 +1,4 @@
-# NodePort Example YAML file 
+# NodePort Example YAML file.
 
 apiVersion: apps/v1
 kind: Deployment
