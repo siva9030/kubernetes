@@ -80,6 +80,11 @@ By default jenkins runs at port 8080, You can access jenkins at
 http://YOUR-SERVER-PUBLIC-IP:8080
 Configure Jenkins
 
+# Take the below path to generate password
+------------------------------------------
+
+cat /var/lib/jenkins/secrets/initialAdminPassword
+
 The default Username is admin
 
 Grab the default password
