@@ -67,9 +67,9 @@ systemctl start jenkins
 systemctl enable jenkins
 
 
-# Setup Jenkins to start at boot,
----------------------------------
-systemctl enable jenkins
+# Accessing the jenkins with below way
+--------------------------------------
+
 
 Accessing Jenkins
 
