@@ -48,20 +48,37 @@ By default jenkins runs at port 8080, You can access jenkins at
 
 http://YOUR-SERVER-PUBLIC-IP:8080
 Configure Jenkins
+
 The default Username is admin
+
 Grab the default password
+
 Password Location:/var/lib/jenkins/secrets/initialAdminPassword
+
 Skip Plugin Installation; We can do it later
+
 Change admin password
+
 Admin > Configure > Password
+
 Configure java path
+
 Manage Jenkins > Global Tool Configuration > JDK
+
 Create another admin user id
+
 Test Jenkins Jobs
+
 Create “new item”
+
 Enter an item name – My-First-Project
+
 Chose Freestyle project
+
 Under Build section Execute shell : echo "Welcome to Jenkins Demo"
+
 Save your job
+
 Build job
+
 Check "console output"
