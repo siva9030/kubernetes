@@ -36,15 +36,16 @@ source ~/.bash_profile
 
 The output should be something like this,
 
-[root@~]# java -version
+[root@jenkins-master ~]# java -version
 
-openjdk version "1.8.0_151"
+openjdk version "17.0.5" 2022-10-18 LTS
 
-OpenJDK Runtime Environment (build 1.8.0_151-b12)
+OpenJDK Runtime Environment Corretto-17.0.5.8.1 (build 17.0.5+8-LTS)
 
-OpenJDK 64-Bit Server VM (build 25.151-b12, mixed mode)
+OpenJDK 64-Bit Server VM Corretto-17.0.5.8.1 (build 17.0.5+8-LTS, mixed mode, sharing)
 
-Install Jenkins
+# Install Jenkins
+-----------------
 
 You can install jenkins using the rpm or by setting up the repo. We will setup the repo so that we can update it easily in future. Get latest version of jenkins from 
 
@@ -58,13 +59,12 @@ rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key
 
 yum -y install jenkins
 
-Start Jenkins
 
-# Start jenkins service
+# Start the Jenkins service
 ---------------------------
 systemctl start jenkins
 
-# Enable Jenkins service even after reboot to start Jenkins automatically
+# Enable the Jenkins service even after reboot to start Jenkins automatically
 --------------------------------------------------------------------------
 systemctl enable jenkins
 
