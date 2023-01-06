@@ -10,7 +10,7 @@ Install Java
 
 We will be using open java for our demo, Get latest version from http://openjdk.java.net/install/
 
-yum install java-1.8*
+yum install java-1.8* -y
 
 #yum -y install java-1.8.0-openjdk
 
