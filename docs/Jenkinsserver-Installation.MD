@@ -22,7 +22,7 @@ java -version
 
 find /usr/lib/jvm/java-1.8* | head -n 3
 
-JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.191.b12-1.el7_6.x86_64
+JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.342.b07-1.amzn2.0.1.x86_64
 
 export JAVA_HOME
 
