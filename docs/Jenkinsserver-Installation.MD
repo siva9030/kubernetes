@@ -62,6 +62,11 @@ Start Jenkins
 ---------------------------
 systemctl start jenkins
 
+# Enable Jenkins service even after reboot to start Jenkins automatically
+--------------------------------------------------------------------------
+systemctl start jenkins
+
+
 # Setup Jenkins to start at boot,
 ---------------------------------
 systemctl enable jenkins
