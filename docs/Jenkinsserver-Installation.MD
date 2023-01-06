@@ -10,7 +10,9 @@ Install Java
 
 We will be using open java for our demo, Get latest version from http://openjdk.java.net/install/
 
-yum install java-1.8* -y
+yum install java-1.8* -y // needed but in amazon linux you can directly install 
+
+yum install java // this is for amazon linux
 
 #yum -y install java-1.8.0-openjdk
 
