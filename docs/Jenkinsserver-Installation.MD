@@ -1,6 +1,8 @@
-Jenkins server Installation
+#Jenkins server Installation
+------------------------------
 Prerequisites
-EC2 Linux 7.x Instance
+-------------------
+EC2 Linux 7.x Instance (t2.small for 2GB RAM and Allow port 8080 in SG level)
 
 Java v1.8.x
 
@@ -14,10 +16,11 @@ Lets install java and set the java home
 
 java -version
 find /usr/lib/jvm/java-1.8* | head -n 3
-#JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.191.b12-1.el7_6.x86_64
+JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.191.b12-1.el7_6.x86_64
 export JAVA_HOME
 PATH=$PATH:$JAVA_HOME
 # To set it permanently update your .bash_profile
+--------------------------------------------------
 source ~/.bash_profile
 The output should be something like this,
 
@@ -34,9 +37,11 @@ rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key
 yum -y install jenkins
 Start Jenkins
 # Start jenkins service
+---------------------------
 systemctl start jenkins
 
 # Setup Jenkins to start at boot,
+---------------------------------
 systemctl enable jenkins
 Accessing Jenkins
 By default jenkins runs at port 8080, You can access jenkins at
