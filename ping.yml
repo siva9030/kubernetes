@@ -4,4 +4,4 @@
     - name: test the ping 
       ping: 
     - name: check the file system spaces.
-      command: df -h 
+      command: cat /etc/redhat-release
