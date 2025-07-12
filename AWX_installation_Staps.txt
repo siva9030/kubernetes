@@ -1,0 +1,282 @@
+Yes, absolutely! You can install Kubernetes for free on RHEL 9 for AWX installation. There are several excellent free Kubernetes distributions that work well with RHEL 9. Let me show you the best options:
+
+## Free Kubernetes Options for RHEL 9
+
+### 1. K3s (Recommended for Single Node)
+
+**K3s is the most popular choice** for AWX installations because it’s lightweight, easy to install, and perfect for single-node deployments.
+
+```bash
+# Install K3s (single command installation)
+curl -sfL https://get.k3s.io | sh -
+
+# Configure kubectl for regular user
+mkdir -p ~/.kube
+sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
+sudo chown $USER:$USER ~/.kube/config
+export KUBECONFIG=~/.kube/config
+
+# Verify installation
+kubectl get nodes
+```
+
+**Advantages of K3s:**
+
+- Single binary installation
+- Uses about 512MB RAM
+- Built-in storage class (local-path)
+- Perfect for AWX development/testing
+- Includes everything needed out of the box
+
+### 2. MicroK8s (Ubuntu’s Kubernetes)
+
+```bash
+# Install snapd first
+sudo dnf install snapd
+sudo systemctl enable --now snapd.socket
+
+# Install MicroK8s
+sudo snap install microk8s --classic
+
+# Add user to microk8s group
+sudo usermod -a -G microk8s $USER
+newgrp microk8s
+
+# Enable required addons
+microk8s enable dns storage
+
+# Configure kubectl
+microk8s kubectl config view --raw > ~/.kube/config
+```
+
+### 3. kubeadm (Official Kubernetes)
+
+This is the standard Kubernetes installation method:
+
+```bash
+# Add Kubernetes repository
+cat <<EOF | sudo tee /etc/yum.repos.d/kubernetes.repo
+[kubernetes]
+name=Kubernetes
+baseurl=https://pkgs.k8s.io/core:/stable:/v1.28/rpm/
+enabled=1
+gpgcheck=1
+gpgkey=https://pkgs.k8s.io/core:/stable:/v1.28/rpm/repodata/repomd.xml.key
+exclude=kubelet kubeadm kubectl cri-tools kubernetes-cni
+EOF
+
+# Install Kubernetes components
+sudo dnf install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
+sudo systemctl enable kubelet
+
+# Initialize cluster
+sudo kubeadm init --pod-network-cidr=10.244.0.0/16
+
+# Configure kubectl
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+# Install network plugin (Flannel)
+kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml
+
+# Allow scheduling on control plane (single node)
+kubectl taint nodes --all node-role.kubernetes.io/control-plane-
+```
+
+## Complete AWX Installation with K3s
+
+Here’s a complete step-by-step guide using K3s (the easiest option):
+
+### Step 1: System Preparation
+
+```bash
+# Update RHEL 9
+sudo dnf update -y
+
+# Install required packages
+sudo dnf install -y git curl wget firewalld
+
+# Configure firewall for K3s
+sudo firewall-cmd --permanent --add-port=6443/tcp
+sudo firewall-cmd --permanent --add-port=10250/tcp
+sudo firewall-cmd --reload
+```
+
+### Step 2: Install K3s
+
+```bash
+# Install K3s
+curl -sfL https://get.k3s.io | sh -
+
+# Configure kubectl
+mkdir -p ~/.kube
+sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
+sudo chown $USER:$USER ~/.kube/config
+export KUBECONFIG=~/.kube/config
+
+# Verify K3s is running
+kubectl get nodes
+kubectl get pods -A
+```
+
+### Step 3: Install AWX Operator
+
+```bash
+# Create kustomization file
+cat <<EOF > kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - github.com/ansible/awx-operator/config/default?ref=2.19.1
+images:
+  - name: quay.io/ansible/awx-operator
+    newTag: 2.19.1
+namespace: awx
+EOF
+
+# Apply AWX operator
+kubectl apply -k .
+
+# Wait for operator to be ready
+kubectl wait --for=condition=Ready pod -l control-plane=controller-manager -n awx --timeout=300s
+```
+
+### Step 4: Deploy AWX Instance
+
+```bash
+# Create secrets
+kubectl create secret generic awx-admin-password \
+  --from-literal=password='YourSecurePassword123' \
+  -n awx
+
+kubectl create secret generic awx-postgres-configuration \
+  --from-literal=host=awx-demo-postgres-13 \
+  --from-literal=port=5432 \
+  --from-literal=database=awx \
+  --from-literal=username=awx \
+  --from-literal=password='SecureDBPassword123' \
+  -n awx
+
+kubectl create secret generic awx-secret-key \
+  --from-literal=secret_key='YourSecretKey123456789' \
+  -n awx
+
+# Create AWX instance
+cat <<EOF > awx-instance.yaml
+apiVersion: awx.ansible.com/v1beta1
+kind: AWX
+metadata:
+  name: awx-demo
+  namespace: awx
+spec:
+  service_type: nodeport
+  nodeport_port: 30080
+  admin_user: admin
+  admin_password_secret: awx-admin-password
+  postgres_configuration_secret: awx-postgres-configuration
+  secret_key_secret: awx-secret-key
+EOF
+
+kubectl apply -f awx-instance.yaml
+```
+
+### Step 5: Access AWX
+
+```bash
+# Check deployment status
+kubectl get pods -n awx --watch
+
+# Get admin password
+kubectl get secret awx-demo-admin-password -n awx -o jsonpath="{.data.password}" | base64 --decode
+
+# Access AWX at http://your-server-ip:30080
+```
+
+## Cost Analysis: Free vs Paid Options
+
+### Free Options (What we’re using):
+
+- **K3s/MicroK8s/kubeadm**: $0
+- **AWX**: $0
+- **RHEL 9**: Your existing license
+- **Total**: $0 (beyond your RHEL subscription)
+
+### Paid Alternatives for Comparison:
+
+- **Red Hat OpenShift**: $50-100/month per cluster
+- **Red Hat Ansible Automation Platform**: $14,000+/year
+- **Managed Kubernetes** (AWS EKS, etc.): $73+/month
+
+## Resource Requirements
+
+### Minimum for AWX Testing:
+
+- **CPU**: 2 cores
+- **RAM**: 4GB
+- **Storage**: 20GB
+- **Network**: Standard connectivity
+
+### Recommended for Production:
+
+- **CPU**: 4+ cores
+- **RAM**: 8-16GB
+- **Storage**: 50GB+ SSD
+- **Network**: Reliable connectivity
+
+## Comparison of Free Kubernetes Options
+
+|Feature           |K3s             |MicroK8s   |kubeadm            |
+|------------------|----------------|-----------|-------------------|
+|**Installation**  |Single command  |Snap-based |Multi-step         |
+|**Memory Usage**  |~512MB          |~1GB       |~1GB               |
+|**Storage Class** |Built-in        |Add-on     |Manual setup       |
+|**Network Plugin**|Built-in        |Add-on     |Manual setup       |
+|**Best For**      |Single node, AWX|Development|Multi-node clusters|
+|**Maintenance**   |Minimal         |Easy       |Manual             |
+
+## Troubleshooting Common Issues
+
+### K3s Issues:
+
+```bash
+# Check K3s status
+sudo systemctl status k3s
+
+# View K3s logs
+sudo journalctl -u k3s -f
+
+# Restart K3s if needed
+sudo systemctl restart k3s
+```
+
+### Firewall Issues:
+
+```bash
+# Open required ports
+sudo firewall-cmd --permanent --add-port=30080/tcp
+sudo firewall-cmd --reload
+```
+
+### Storage Issues:
+
+```bash
+# Check storage class
+kubectl get storageclass
+
+# Check persistent volumes
+kubectl get pv
+kubectl get pvc -n awx
+```
+
+## Conclusion
+
+**K3s is your best bet** for running AWX on RHEL 9 for free. It’s:
+
+- Completely free
+- Easy to install and maintain
+- Lightweight and efficient
+- Perfect for AWX deployments
+- Actively maintained and supported
+
+This gives you a production-ready Kubernetes cluster at zero additional cost beyond your RHEL 9 subscription, making it an excellent choice for organizations wanting to try AWX without major infrastructure investments.​​​​​​​​​​​​​​​​
